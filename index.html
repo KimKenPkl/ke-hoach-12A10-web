@@ -92,14 +92,14 @@ summary:hover{background:var(--card2)}
     <div class="nav">
       <div class="brand"><div class="logo">KH</div><div><b>THPT Chi Lăng • 12A10</b><small>Theo dõi &amp; kế hoạch học tập từng em</small></div></div>
       <div class="nav-sp"></div>
-      <span class="chip">sau KTĐK Lần 6 • 33 em</span>
+      <span class="chip">đã có kết quả Lần 7 • 33 em</span>
       <button class="btn-ghost" id="themeBtn">◐ Giao diện</button>
     </div>
-    <h1>Kế hoạch học tập <span class="gold">12A10</span> — từng em, có mục tiêu</h1>
-    <p class="sub">Mỗi em 1 thẻ: chân dung điểm số 6 Lần, <b>mục tiêu Lần 7</b>, việc cần làm theo môn. Thầy tích ✔ từng việc khi em hoàn thành (lưu trên máy) để theo dõi tiến độ. Bấm copy để gửi kế hoạch qua Zalo.</p>
+    <h1>Kế hoạch học tập <span class="gold">12A10</span> — từng em, có đối chiếu Lần 7</h1>
+    <p class="sub">Mỗi em 1 thẻ: chân dung điểm số 7 Lần, <b>mục tiêu Lần 7 &amp; đối chiếu thực tế</b>, việc cần làm theo môn. Thầy tích ✔ từng việc khi em hoàn thành (lưu trên máy) để theo dõi tiến độ. Bấm copy để gửi kế hoạch qua Zalo.</p>
     <div class="stat-row">
       <div class="stat"><small>Sĩ số</small><b>33</b><span>4 nhóm theo dõi</span></div>
-      <div class="stat"><small>TB Tổng B (Lần 6)</small><b id="sTB">—</b><span>Toán + Hoá + Sinh</span></div>
+      <div class="stat"><small>TB Tổng B (Lần 7)</small><b id="sTB">—</b><span>Toán + Hoá + Sinh</span></div>
       <div class="stat"><small>Việc hoàn thành</small><b id="sDat">—</b><span>tích ✔ khi em làm xong</span></div>
       <div class="stat"><small>⚠ Cần chú ý</small><b id="sAlert">—</b><span>nguy cơ / tụt mạnh / mới</span></div>
     </div>
@@ -186,7 +186,7 @@ function renderGrp(){
 }
 function render(){
   const q=(document.getElementById("q").value||"").toLowerCase().trim();
-  const l6=SCORES["Lần 6"]||[];
+  const l6=SCORES["Lần 7"]||SCORES["Lần 6"]||[];
   document.getElementById("sTB").textContent=fnum(avg(l6.map(h=>h.b00)));
   document.getElementById("sAlert").textContent=Object.values(PLANS).filter(p=>p.alert).length+" em";
   const chk=getChk();
@@ -207,6 +207,9 @@ function render(){
     const rows=LANS.map(l=>{const h=em.recs[l];if(!h||(h.toan==null&&h.hoa==null&&h.sinh==null))return `<tr><td><b>${l.replace("Lần ","L")}</b></td><td colspan="5">—</td></tr>`;return `<tr><td><b>${l.replace("Lần ","L")}</b></td><td>${diemTxt(h.toan)}</td><td>${diemTxt(h.hoa)}</td><td>${diemTxt(h.sinh)}</td><td>${diemTxt(h.van)}</td><td><b>${diemTxt(h.b00)}</b></td></tr>`;}).join("");
     const chks=pl.viec.map((v,i)=>{const on=(chk[em.sbd]||[])[i]?1:0;return `<label class="chk${on?" done":""}"><input type="checkbox" ${on?"checked":""} onchange="toggleChk('${em.sbd}',${i},this)"><span>${esc(v)}</span></label>`;}).join("");
     const ndone=(chk[em.sbd]||[]).filter(Boolean).length;
+    const r7=em.recs["Lần 7"]||{};
+    const cmp=(act,tg)=>{if(act==null||tg==null)return "—";const d=Math.round((act-tg)*100)/100;return d>=0?`<span class="ok">✔ ${fnum(act)} (+${d})</span>`:`<span class="no">▼ ${fnum(act)} (${d})</span>`;};
+    const kq7=r7.b00!=null?`<div style="margin-top:6px;padding-top:6px;border-top:1px dashed var(--line);font-size:13px">📊 <b>Thực tế Lần 7: Tổng ${cmp(r7.b00,pl.tgt.t_total)}</b> (Toán ${cmp(r7.toan,pl.tgt.toan)} • Hóa ${cmp(r7.hoa,pl.tgt.hoa)} • Sinh ${cmp(r7.sinh,pl.tgt.sinh)})</div>`:"";
     const dd=document.createElement("details");dd.className="hs"+(pl.alert?" alert":"");
     dd.innerHTML=`
     <summary><div class="avatar" style="background:${grad(em.sbd)}">${esc(initials(em.hoten))}</div>
@@ -216,8 +219,7 @@ function render(){
     <div class="hs-body">
       <div class="hint">${esc(pl.chan)}</div>
       <table class="mini"><tr><th>Lần</th><th>Toán</th><th>Hoá</th><th>Sinh</th><th>Văn</th><th>Tổng B</th></tr>${rows}</table>
-      <div class="tbox">🎯 <b class="t">Mục tiêu Lần 7: Tổng ${pl.tgt.t_total}</b> (Toán ${pl.tgt.toan} • Hóa ${pl.tgt.hoa} • Sinh ${pl.tgt.sinh})
-
+      <div class="tbox">🎯 <b class="t">Mục tiêu Lần 7: Tổng ${pl.tgt.t_total}</b> (Toán ${pl.tgt.toan} • Hóa ${pl.tgt.hoa} • Sinh ${pl.tgt.sinh})${kq7}
       </div>
       <div><b style="font-size:13.5px">Việc cần làm:</b>${chks}</div>
       <div class="nbox">📌 ${esc(pl.note)}</div>
